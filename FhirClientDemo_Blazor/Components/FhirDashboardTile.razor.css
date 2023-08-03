@@ -1,0 +1,109 @@
+﻿.group-name {
+    border: 0px solid black;
+    padding: 5px;
+    border-radius: 5px;
+    color: white;    
+    width: 100px;
+}
+
+.group-base {
+    background-color: #7c7c7c;
+}
+
+.group-planning {
+    background-color: #1f6abb;
+}
+
+.group-clinical {
+    background-color: #ef0000;
+}
+
+.group-financial {
+    background-color: #609931;
+}
+
+.group-base-color {
+    color: #7c7c7c;
+}
+
+.group-planning-color {
+    color: #1f6abb;
+}
+
+.group-clinical-color {
+    color: #ef0000;
+}
+
+.group-financial-color {
+    color: #609931;
+}
+
+.tile {
+    padding: 0px 5px 0px 0px;
+    /* */
+    min-width: 250px;
+    margin-bottom: 0px;
+}
+
+.tile-title {
+    color: #cdcdcd;
+}
+
+.stat {
+    white-space: nowrap;
+    /* overflow: hidden; */
+    text-overflow: ellipsis;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+/*
+div.card-body div.row div.col2 {
+    padding:0;
+}
+*/
+
+
+.dashboard-page .stats .stat-progress {
+    height: 2px;
+    margin: 5px 0;
+    color: #85CE36;
+    background-color: #dddddd;
+}
+
+.stats .stat-icon {
+    margin: 0 5px 5px 0;
+    color: #BDBDBD;
+    display: inline-block;
+    font-size: 28px;
+    text-align: center;
+    vertical-align: middle;
+    width: 40px;
+}
+
+.stat .value {
+    font-size: 30px;
+    line-height: 24px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+    /*color:orange;*/
+}
+
+.stat .name {
+    /* overflow: hidden; */
+    text-overflow: ellipsis;
+}
+
+.card-body {
+    min-height: 80px;
+}
+
+.card {
+    border-radius: 4px;
+    background: linear-gradient(to bottom right, #d8d8d8, #ffffff);
+    box-shadow: 2px 2px 4px 0 rgba(0,0,0,0.15);
+}
+
+
+

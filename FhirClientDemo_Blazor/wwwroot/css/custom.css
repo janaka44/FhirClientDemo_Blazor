@@ -1,0 +1,45 @@
+body {
+    
+}
+
+.tile-Basic {
+    background: linear-gradient(to bottom right, #7c7c7c, #b6b6b6);
+    background-color: #5a5a5a;
+}
+
+.tile-Clinical {
+    background: linear-gradient(to bottom right, #ef0000, #f76a00);
+}
+
+.tile-Financial {
+    background: linear-gradient(to bottom right, #609931, #87bc27);
+    background-color: #28a745;
+}
+
+.tile-Planning {
+    background: linear-gradient(to bottom right, #1f6abb, #4f9cf2);
+    background-color: #25629f;
+}
+
+
+.progress {
+    display: -ms-flexbox;
+    display: flex;
+    height: 1rem;
+    overflow: hidden;
+    font-size: 0.75rem;
+    background-color: #e9ecef;
+    border-radius: 0.25rem;
+}
+
+.rotate {
+    margin-right:50px;
+    margin-left:20px;
+    top: 0;
+    left: 0;
+    /* Border is the new background */
+    background: none;
+    /* Rotate from top left corner (not default) */
+    transform-origin: 0 0;
+    transform: rotate(90deg);
+}

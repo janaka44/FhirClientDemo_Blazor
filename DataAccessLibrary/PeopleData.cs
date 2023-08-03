@@ -15,10 +15,5 @@ namespace DataAccessLibrary
             this._db = db;
         }
 
-        public  Task<List<PersonModel>> GetPeople()
-        {
-            string sql = "select * from dbo.Poeple";
-
-        }
     }
 }

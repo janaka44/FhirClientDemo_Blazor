@@ -1,9 +1,206 @@
 ﻿@page "/"
+@namespace FhirClientDemo_Blazor.Components
+@using System.Diagnostics;
+@using System.Text.RegularExpressions;
+@using FhirClientDemo_Blazor.Data;
+@using Models;
 
-<PageTitle>Index</PageTitle>
+<PageTitle>FHIR Demo Client: Dashboard</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="row">
+    <div class="col-md-9">
+        <div class="card stats">
+            <div class="row">
+                <div class="col-8">
+                    <div class="card-header ">
+                        <h4 class="card-title">Summary : {{ server_name }} {{ error }}</h4>
+                        <p style="font-size:14px">Server URL: <a href="{{ server_url }}">{{ server_url }}</a></p>
+                        <p class="card-category">@StatSummary | Time to fetch: @RefreshTime secs.</p>
+                    </div>
+                </div>
+                <div class="col-4" style="text-align: right; padding: 10px 40px;">
+                    <img alt="" src="C:\_dev\FhirClientDemo_Blazor\FhirClientDemo_Blazor\wwwroot\images\logos\Epic.png" width="100px">
+                </div>
+            </div>
 
-Welcome to your new app.
+            <!-- Tiles in TileGroups -->
+            @foreach (var tileGroup in TileGroups)
+            {
+                <div class="card-body border-top">                    
+                    <div class="row  text-white mb-2">
+                        <h4 class="card-title tile-title pt-1 text-secondary text-end" style="font-weight:800">@tileGroup.Key</h4>
+                </div>
+                <div class="row">
+                    @foreach (var tile in @tileGroup.Value)
+                    {
+                        <FhirDashboardTile @ref=FhirDashboardTileComponent
+                                        ResourceType=@tile.ResourceType
+                                        StatNumber=@tile.StatNumber
+                                        Icon=@tile.Icon
+                                        SpinnerVisible=@tile.SpinnerVisible
+                                        ResourceDisplayName=@tile.ResourceDisplayName
+                                        GroupName=@tile.GroupName>
+                        </FhirDashboardTile>
+                    }
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+                </div>                
+            </div>
+            }
+        </div>
+    </div>
+    <div class="col-md-3" style="display:inline">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card ">
+                    <div class="card-header ">
+                        <h4 class="card-title">Diagnostic Reports</h4>
+                        <p class="card-category">Quick View (top 10)</p>
+                    </div>
+                    <div class="card-body ">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Product</th>
+                                        <th>Sale</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Jacob</td>
+                                        <td>Photoshop</td>
+                                        <td class="text-danger"> 28.76% <i class="mdi mdi-arrow-down"></i></td>
+                                        <td><label class="badge badge-danger">Pending</label></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Messsy</td>
+                                        <td>Flash</td>
+                                        <td class="text-danger"> 21.06% <i class="mdi mdi-arrow-down"></i></td>
+                                        <td><label class="badge badge-warning">In progress</label></td>
+                                    </tr>
+                                    <tr>
+                                        <td>John</td>
+                                        <td>Premier</td>
+                                        <td class="text-danger"> 35.00% <i class="mdi mdi-arrow-down"></i></td>
+                                        <td><label class="badge badge-info">Fixed</label></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Peter</td>
+                                        <td>After effects</td>
+                                        <td class="text-success"> 82.00% <i class="mdi mdi-arrow-up"></i></td>
+                                        <td><label class="badge badge-success">Completed</label></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Dave</td>
+                                        <td>53275535</td>
+                                        <td class="text-success"> 98.05% <i class="mdi mdi-arrow-up"></i></td>
+                                        <td><label class="badge badge-warning">In progress</label></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button @onclick="LoadData">Load Data</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string StatSummary;
+    private string RefreshTime;
+    FhirDashboardTile FhirDashboardTileComponent { set => FhirDashboardTileList.Add(value); }
+    List<FhirDashboardTile> FhirDashboardTileList = new List<FhirDashboardTile>();
+
+    private List<FhirTile> BaseTiles;
+    private List<FhirTile> PlanningTiles;
+    private List<FhirTile> ClinicalTiles;
+    private List<FhirTile> FinancialTiles;
+
+    private Dictionary<string, List<FhirTile>> TileGroups = new Dictionary<string, List<FhirTile>>();
+
+    public Index()
+    {
+        BaseTiles       = new List<FhirTile>();
+        PlanningTiles   = new List<FhirTile>();
+        ClinicalTiles   = new List<FhirTile>();
+        FinancialTiles  = new List<FhirTile>();
+
+        TileGroups.Add("Planning",  PlanningTiles);
+        TileGroups.Add("Clinical",  ClinicalTiles);
+        TileGroups.Add("Basic", BaseTiles);
+        TileGroups.Add("Financial", FinancialTiles);
+
+        init();
+    }
+
+    private async Task LoadData()
+    {
+        Stopwatch stopWatch = new Stopwatch();
+        stopWatch.Start();
+
+        foreach (var tileGroup in TileGroups)
+        {
+            foreach (FhirTile tile in tileGroup.Value)
+            {
+                FhirDashboardTile? dashTile = FhirDashboardTileList.Find(item => item.ResourceType == tile.ResourceType);
+                await Task.Run(() => dashTile.Refresh());        
+            }
+        }
+        stopWatch.Stop();
+        TimeSpan ts = stopWatch.Elapsed;
+        RefreshTime = ts.Seconds.ToString();
+    }
+
+    public void init()
+    {
+        //TODO: this is called 2 times, find the reason       
+
+        // Planning
+        PlanningTiles.Add(new FhirTile("Appointment",   "Planning", 456, "fas fa-calendar-check"));
+        PlanningTiles.Add(new FhirTile("Slot",          "Planning", 456, "fas fa-calendar-day"));
+        PlanningTiles.Add(new FhirTile("Schedule",      "Planning", 456, "fas fa-calendar-alt"));
+        PlanningTiles.Add(new FhirTile("Task",          "Planning", 456, "fas fa-tasks"));
+        PlanningTiles.Add(new FhirTile("ServiceRequest", "Planning", 456, "fas fa-notes-medical"));
+        PlanningTiles.Add(new FhirTile("EpisodeOfCare", "Planning", 456, "fas fa-notes-medical"));
+        PlanningTiles.Add(new FhirTile("Encounter",     "Planning", 456, "fas fa-briefcase-medical"));
+
+        // Clinical
+        ClinicalTiles.Add(new FhirTile("Condition",     "Clinical", 789, "fa fa-user-injured"));
+        ClinicalTiles.Add(new FhirTile("AllergyIntolerance", "Clinical", 789, "fas fa-allergies"));
+        ClinicalTiles.Add(new FhirTile("Observation",   "Clinical", 10748, "fas fa-microscope"));
+        ClinicalTiles.Add(new FhirTile("Procedure",     "Clinical", 11042, "fas fa-procedures"));
+        ClinicalTiles.Add(new FhirTile("DiagnosticReport",      "Clinical", 789, "fas fa-diagnoses"));
+        ClinicalTiles.Add(new FhirTile("MedicationRequest",     "Clinical", 789, "fas fa-prescription-bottle"));
+        ClinicalTiles.Add(new FhirTile("MedicationStatement",   "Clinical", 12456, "fas fa-file-prescription"));
+        ClinicalTiles.Add(new FhirTile("Medication",    "Clinical", 789, "fas fa-capsules"));
+        ClinicalTiles.Add(new FhirTile("Immunization",  "Clinical", 789, "fas fa-syringe"));
+
+        // Base
+        BaseTiles.Add(new FhirTile("Patient",       "Base", 123, "fas fa-hospital-user"));
+        BaseTiles.Add(new FhirTile("Practitioner",  "Base", 123, "fas fa-user-md"));
+        BaseTiles.Add(new FhirTile("PractitionerRole", "Base", 123, "fas fa-user-md"));
+        BaseTiles.Add(new FhirTile("Organization",  "Base", 123, "fas fa-clinic-medical"));
+        BaseTiles.Add(new FhirTile("Location",      "Base", 123, "fas fa-building"));
+        BaseTiles.Add(new FhirTile("HealthcareService", "Base", 123, "fas fa-briefcase-medical"));
+
+
+        // Financial
+        FinancialTiles.Add(new FhirTile("Claim",            "Financial", 111, "fas fa-file-invoice-dollar"));
+        FinancialTiles.Add(new FhirTile("ClaimResponse",    "Financial", 111, "fas fa-receipt"));
+        FinancialTiles.Add(new FhirTile("PaymentNotice",    "Financial", 111, "far fa-credit-card"));
+        FinancialTiles.Add(new FhirTile("InsurancePlan",    "Financial", 111, "far fa-credit-card")); 
+        FinancialTiles.Add(new FhirTile("Invoice",          "Financial", 111, "far fa-credit-card"));
+
+        Debug.Print($"BaseTiles         = {BaseTiles.Count}");
+        Debug.Print($"PlanningTiles     = {PlanningTiles.Count}");
+        Debug.Print($"ClinicalTiles     = {ClinicalTiles.Count}");
+        Debug.Print($"FinancialTiles    = {FinancialTiles.Count}");
+    }
+
+}
+

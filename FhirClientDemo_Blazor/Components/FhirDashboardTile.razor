@@ -1,0 +1,108 @@
+﻿@using System.Diagnostics;
+@using System.Globalization;
+@using FhirClientDemo_Blazor.Data;
+
+<div class="tile col-xl-3 col-sm-6 mb-2 stretch-card ">
+    <div class="card" style="background-color:#f7f7f7">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-2">  
+                    <div class="stat-icon">
+                        <!-- <i class="fa fa-spinner" aria-hidden="true"></i>
+                        <img src="/images/spin-1s-200px.gif" />-->
+                        <Spinner Visible="@SpinnerVisible"></Spinner>
+                        <i class="@Icon group-@GroupName.ToLower()-color" style="display:@ShowIcon"></i>
+                    </div>
+                </div>  
+                <div class="col-10 stat-col">                
+                    <div class="stat" style="max-width: 200px;">
+                        <span class="value font-weight-medium" style="font-size:20px">@StatNumber.ToString("###,###,###")</span>
+                        <br />
+                        <span class="name h6 text-secondary">@($"{ResourceDisplayName}s")</span>
+                        <!-- <h6 class="group-name font-weight-normal @generateGroupColorClass()"> @GroupName </h6>-->
+                    </div>
+                    <div class="progress stat-progress" style="display:none;">
+                        <div class="progress-bar" style="width: 00%;"></div>
+                    </div>
+                    <button class="btn btn-primary p-1" style="font-size:10px" @onclick="Refresh">
+                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    public void ToggleRefresh()
+    {
+        if (SpinnerVisible == "block"){
+            SpinnerVisible = "none";
+            ShowIcon = "block";
+        }
+        else
+        {
+            SpinnerVisible = "block";
+            ShowIcon = "none";
+        }
+    }
+
+    public string ShowIcon { get; set; }
+
+    [Parameter]
+    public string SpinnerVisible { get; set; }
+
+    [Parameter]
+    public int StatNumber { get; set; }
+
+    [Parameter]
+    public string? Icon { get; set; }
+
+    [Parameter]
+    public string ResourceType { get; set; }
+
+    [Parameter]
+    public string GroupName { get; set; }
+
+    [Parameter]
+    public string? ResourceDisplayName { get; set; }
+
+    FhirUtil f = new FhirUtil();
+
+    public async Task Refresh()
+    {
+        ToggleRefresh();        
+        await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
+
+        int resourceCount = await FhirUtil.CountResources(ResourceType);
+        StatNumber = resourceCount;
+        Debug.Print($"Fetched {resourceCount} {ResourceType}s");
+        
+        ToggleRefresh();
+        await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
+    }
+
+    private string generateGroupColorClass()
+    {
+        string groupColorClass = "";
+        switch (GroupName)
+        {
+            case "Planning":
+                groupColorClass = "group-planning";
+                break;
+            case "Base":
+                groupColorClass = "group-base";
+                break;
+            case "Clinical":
+                groupColorClass = "group-clinical";
+                break;
+            case "Financial":
+                groupColorClass = "group-financial";
+                break;
+        }
+        return groupColorClass;
+    }
+
+
+
+}

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FhirClientDemo_Blazor", "FhirClientDemo_Blazor\FhirClientDemo_Blazor.csproj", "{72080B5B-AD0E-4161-89D3-D3220C925271}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FhirClientDemo_Blazor", "FhirClientDemo_Blazor\FhirClientDemo_Blazor.csproj", "{72080B5B-AD0E-4161-89D3-D3220C925271}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLibrary", "DataAccessLibrary\DataAccessLibrary.csproj", "{27F1845F-2B8E-4872-921D-13E4D9FD9436}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLibrary", "DataAccessLibrary\DataAccessLibrary.csproj", "{27F1845F-2B8E-4872-921D-13E4D9FD9436}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
