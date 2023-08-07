@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using FhirClientDemo_Blazor.Services;
+@using FhirClientDemo_Blazor.Components;
+@inherits LayoutComponentBase
 
 <PageTitle>FHIR Client Demo</PageTitle>
 
@@ -9,7 +11,10 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            <button class="btn p-2 toolbar-button" @onclick="Refresh">
+                <i class="fa fa-refresh" aria-hidden="true"></i> Refresh
+            </button>
+            <Dropdown></Dropdown>
         </div>
 
         <article class="content px-4" style="margin:-10px -10px 0px -20px;">
@@ -17,3 +22,11 @@
         </article>
     </main>
 </div>
+
+@code {
+    [Inject] private NotifyStateService? service { get; set; }
+    private NotifyStateService Service => service;
+
+    // TODO: this is not rendering UI (text not updated)
+    private void Refresh() => this.Service.NotifyEventClick(this);
+}

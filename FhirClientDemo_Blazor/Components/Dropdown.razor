@@ -1,0 +1,23 @@
+﻿@using FhirClientDemo_Blazor.Services;
+
+<div class="dropdown px-2 ">
+    <button class="dropbtn ">FHIR Server
+        <i class="fa fa-bars m-lg-2" aria-hidden="true" b-a4f8fq6b7n=""></i>
+    </button>
+    <div class="dropdown-content">
+        <a href="#" @onclick="Refresh" id="iris_local">InterSystems IRIS Local server</a>
+        <a href="#" id="iris_cloud">InterSystems IRIS Cloud server</a>
+        <a href="#" id="hapi">HAPI server</a>
+        <a href="#" id="firely">Firely server</a>
+        <a href="#" id="cerner">Cerner server</a>
+        <a href="#" id="epic">EPIC server</a>
+    </div>
+</div>
+
+@code {
+    [Inject] private NotifyStateService? service { get; set; }
+    private NotifyStateService Service => service;
+
+    // TODO: this is not rendering UI (text not updated)
+    private void Refresh() => this.Service.NotifyEventClick(this);
+}

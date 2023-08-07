@@ -7,7 +7,9 @@ namespace FhirClientDemo_Blazor.Data
 {
     public class FhirUtil
     {
-        public static FhirClient client = new FhirClient("https://server.fire.ly/r4");
+        public static string ServerName { get; set; } = "Firely Public Server";
+        public static string ServerUrl { get; set; } = "https://server.fire.ly/r4";
+        public static FhirClient client = new FhirClient(ServerUrl);
 
         public FhirUtil() {
             

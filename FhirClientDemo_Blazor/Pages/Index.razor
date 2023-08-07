@@ -3,6 +3,7 @@
 @using System.Diagnostics;
 @using System.Text.RegularExpressions;
 @using FhirClientDemo_Blazor.Data;
+@using FhirClientDemo_Blazor.Services;
 @using Models;
 
 <PageTitle>FHIR Demo Client: Dashboard</PageTitle>
@@ -11,15 +12,14 @@
     <div class="col-md-9">
         <div class="card stats">
             <div class="row">
-                <div class="col-8">
-                    <div class="card-header ">
-                        <h4 class="card-title">Summary : {{ server_name }} {{ error }}</h4>
-                        <p style="font-size:14px">Server URL: <a href="{{ server_url }}">{{ server_url }}</a></p>
-                        <p class="card-category">@StatSummary | Time to fetch: @RefreshTime secs.</p>
-                    </div>
+                <div class="col-8 px-3">                    
+                        <h5 class="card-title font-weight-bold">Summary: @FhirUtil.ServerName @Error </h5>
+                        <p style="font-size:14px">Server URL: <a href="@FhirUtil.ServerUrl">@FhirUtil.ServerUrl</a></p>
+                        <p class="card-category">@StatSummary @RefreshTime</p>
+                   
                 </div>
                 <div class="col-4" style="text-align: right; padding: 10px 40px;">
-                    <img alt="" src="C:\_dev\FhirClientDemo_Blazor\FhirClientDemo_Blazor\wwwroot\images\logos\Epic.png" width="100px">
+                    <img alt="" src="\images\logos\firely.jpg" width="100px">
                 </div>
             </div>
 
@@ -42,7 +42,6 @@
                                         GroupName=@tile.GroupName>
                         </FhirDashboardTile>
                     }
-
                 </div>                
             </div>
             }
@@ -53,7 +52,7 @@
             <div class="col-md-12">
                 <div class="card ">
                     <div class="card-header ">
-                        <h4 class="card-title">Diagnostic Reports</h4>
+                        <h5 class="card-title">Diagnostic Reports</h5>
                         <p class="card-category">Quick View (top 10)</p>
                     </div>
                     <div class="card-body ">
@@ -61,42 +60,42 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>User</th>
-                                        <th>Product</th>
-                                        <th>Sale</th>
+                                        <th>Patient</th>
+                                        <th>Diagnosis</th>
+                                        <th>Date</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>Jacob</td>
-                                        <td>Photoshop</td>
-                                        <td class="text-danger"> 28.76% <i class="mdi mdi-arrow-down"></i></td>
-                                        <td><label class="badge badge-danger">Pending</label></td>
+                                        <td>Jacob P.</td>
+                                        <td>Biopsy</td>
+                                        <td class="text-danger"> 2011-02-04 <i class="mdi mdi-arrow-down"></i></td>
+                                        <td><label class="badge badge-danger bg-danger">Pending</label></td>
                                     </tr>
                                     <tr>
-                                        <td>Messsy</td>
-                                        <td>Flash</td>
-                                        <td class="text-danger"> 21.06% <i class="mdi mdi-arrow-down"></i></td>
-                                        <td><label class="badge badge-warning">In progress</label></td>
+                                        <td>Messsy H.</td>
+                                        <td>CT scan</td>
+                                        <td class="text-danger"> 2013-04-14 <i class="mdi mdi-arrow-down"></i></td>
+                                        <td><label class="badge badge-warning bg-warning">In progress</label></td>
                                     </tr>
                                     <tr>
-                                        <td>John</td>
-                                        <td>Premier</td>
-                                        <td class="text-danger"> 35.00% <i class="mdi mdi-arrow-down"></i></td>
-                                        <td><label class="badge badge-info">Fixed</label></td>
+                                        <td>John P.</td>
+                                        <td>Gastroscopy</td>
+                                        <td class="text-danger"> 2015-12-01 <i class="mdi mdi-arrow-down"></i></td>
+                                        <td><label class="badge badge-info bg-info">Fixed</label></td>
                                     </tr>
                                     <tr>
-                                        <td>Peter</td>
-                                        <td>After effects</td>
-                                        <td class="text-success"> 82.00% <i class="mdi mdi-arrow-up"></i></td>
-                                        <td><label class="badge badge-success">Completed</label></td>
+                                        <td>Peter S.</td>
+                                        <td>Eye tests</td>
+                                        <td class="text-success"> 2023-01-24 <i class="mdi mdi-arrow-up"></i></td>
+                                        <td><label class="badge badge-success bg-success">Completed</label></td>
                                     </tr>
                                     <tr>
-                                        <td>Dave</td>
-                                        <td>53275535</td>
-                                        <td class="text-success"> 98.05% <i class="mdi mdi-arrow-up"></i></td>
-                                        <td><label class="badge badge-warning">In progress</label></td>
+                                        <td>Dave S.</td>
+                                        <td>Colonoscopy</td>
+                                        <td class="text-success"> 2022-12-30 <i class="mdi mdi-arrow-up"></i></td>
+                                        <td><label class="badge badge-warning bg-warning">In progress</label></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -105,14 +104,18 @@
                 </div>
             </div>
 
-            <button @onclick="LoadData">Load Data</button>
         </div>
     </div>
 </div>
 
 @code {
+    [Inject] private NotifyStateService? service { get; set; }
+    private NotifyStateService Service => service!;
+
     private string StatSummary;
     private string RefreshTime;
+    private string Error;
+
     FhirDashboardTile FhirDashboardTileComponent { set => FhirDashboardTileList.Add(value); }
     List<FhirDashboardTile> FhirDashboardTileList = new List<FhirDashboardTile>();
 
@@ -136,24 +139,55 @@
         TileGroups.Add("Financial", FinancialTiles);
 
         init();
+
     }
 
-    private async Task LoadData()
+    protected override void OnInitialized()
+    {
+        this.Service.EventClick += this.RefreshData;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {        
+        if (firstRender)
+            Task.Run(() => RefreshData());
+    }
+
+    private void RefreshData(object? sender, EventArgs e)
+    {
+        List<Task> t = new List<Task>(); 
+        t.Add(Task.Run(() => RefreshData()) );
+        Task.WhenAll(t);
+        this.InvokeAsync(StateHasChanged).ConfigureAwait(false);
+    }
+
+    private async Task RefreshData()
     {
         Stopwatch stopWatch = new Stopwatch();
         stopWatch.Start();
+        List<Task> tileRefreshTasks = new List<Task>();
+        int tileCount = 0;
 
         foreach (var tileGroup in TileGroups)
         {
             foreach (FhirTile tile in tileGroup.Value)
             {
                 FhirDashboardTile? dashTile = FhirDashboardTileList.Find(item => item.ResourceType == tile.ResourceType);
-                await Task.Run(() => dashTile.Refresh());        
+                if (dashTile is object){
+                    tileRefreshTasks.Add( dashTile.Refresh() );
+                    //await Task.Run(() => dashTile.Refresh());
+                    tileCount++;
+                }
             }
         }
+        await Task.WhenAll(tileRefreshTasks);
+
         stopWatch.Stop();
         TimeSpan ts = stopWatch.Elapsed;
-        RefreshTime = ts.Seconds.ToString();
+        RefreshTime = $" | Time to fetch: {ts.Seconds.ToString()}.{ts.Milliseconds.ToString()} secs.";
+        StatSummary = $"{tileCount} tiles refreshed";
+        await InvokeAsync(() => StateHasChanged()).ConfigureAwait(false);
+        
     }
 
     public void init()
@@ -161,40 +195,40 @@
         //TODO: this is called 2 times, find the reason       
 
         // Planning
-        PlanningTiles.Add(new FhirTile("Appointment",   "Planning", 456, "fas fa-calendar-check"));
-        PlanningTiles.Add(new FhirTile("Slot",          "Planning", 456, "fas fa-calendar-day"));
-        PlanningTiles.Add(new FhirTile("Schedule",      "Planning", 456, "fas fa-calendar-alt"));
-        PlanningTiles.Add(new FhirTile("Task",          "Planning", 456, "fas fa-tasks"));
-        PlanningTiles.Add(new FhirTile("ServiceRequest", "Planning", 456, "fas fa-notes-medical"));
-        PlanningTiles.Add(new FhirTile("EpisodeOfCare", "Planning", 456, "fas fa-notes-medical"));
-        PlanningTiles.Add(new FhirTile("Encounter",     "Planning", 456, "fas fa-briefcase-medical"));
+        PlanningTiles.Add(new FhirTile("Appointment",   "Planning", 0, "fas fa-calendar-check"));
+        PlanningTiles.Add(new FhirTile("Slot",          "Planning", 0, "fas fa-calendar-day"));
+        PlanningTiles.Add(new FhirTile("Schedule",      "Planning", 0, "fas fa-calendar-alt"));
+        PlanningTiles.Add(new FhirTile("Task",          "Planning", 0, "fas fa-tasks"));
+        PlanningTiles.Add(new FhirTile("ServiceRequest","Planning", 0, "fas fa-notes-medical"));
+        PlanningTiles.Add(new FhirTile("EpisodeOfCare", "Planning", 0, "fas fa-notes-medical"));
+        PlanningTiles.Add(new FhirTile("Encounter",     "Planning", 0, "fas fa-briefcase-medical"));
 
         // Clinical
-        ClinicalTiles.Add(new FhirTile("Condition",     "Clinical", 789, "fa fa-user-injured"));
-        ClinicalTiles.Add(new FhirTile("AllergyIntolerance", "Clinical", 789, "fas fa-allergies"));
-        ClinicalTiles.Add(new FhirTile("Observation",   "Clinical", 10748, "fas fa-microscope"));
-        ClinicalTiles.Add(new FhirTile("Procedure",     "Clinical", 11042, "fas fa-procedures"));
-        ClinicalTiles.Add(new FhirTile("DiagnosticReport",      "Clinical", 789, "fas fa-diagnoses"));
-        ClinicalTiles.Add(new FhirTile("MedicationRequest",     "Clinical", 789, "fas fa-prescription-bottle"));
-        ClinicalTiles.Add(new FhirTile("MedicationStatement",   "Clinical", 12456, "fas fa-file-prescription"));
-        ClinicalTiles.Add(new FhirTile("Medication",    "Clinical", 789, "fas fa-capsules"));
-        ClinicalTiles.Add(new FhirTile("Immunization",  "Clinical", 789, "fas fa-syringe"));
+        ClinicalTiles.Add(new FhirTile("Condition",             "Clinical", 0, "fa fa-user-injured"));
+        ClinicalTiles.Add(new FhirTile("AllergyIntolerance",    "Clinical", 0, "fas fa-allergies"));
+        ClinicalTiles.Add(new FhirTile("Observation",           "Clinical", 0, "fas fa-microscope"));
+        ClinicalTiles.Add(new FhirTile("Procedure",             "Clinical", 0, "fas fa-procedures"));
+        ClinicalTiles.Add(new FhirTile("DiagnosticReport",      "Clinical", 0, "fas fa-diagnoses"));
+        ClinicalTiles.Add(new FhirTile("MedicationRequest",     "Clinical", 0, "fas fa-prescription-bottle"));
+        ClinicalTiles.Add(new FhirTile("MedicationStatement",   "Clinical", 0, "fas fa-file-prescription"));
+        ClinicalTiles.Add(new FhirTile("Medication",            "Clinical", 0, "fas fa-capsules"));
+        ClinicalTiles.Add(new FhirTile("Immunization",          "Clinical", 0, "fas fa-syringe"));
 
         // Base
-        BaseTiles.Add(new FhirTile("Patient",       "Base", 123, "fas fa-hospital-user"));
-        BaseTiles.Add(new FhirTile("Practitioner",  "Base", 123, "fas fa-user-md"));
-        BaseTiles.Add(new FhirTile("PractitionerRole", "Base", 123, "fas fa-user-md"));
-        BaseTiles.Add(new FhirTile("Organization",  "Base", 123, "fas fa-clinic-medical"));
-        BaseTiles.Add(new FhirTile("Location",      "Base", 123, "fas fa-building"));
-        BaseTiles.Add(new FhirTile("HealthcareService", "Base", 123, "fas fa-briefcase-medical"));
+        BaseTiles.Add(new FhirTile("Patient",           "Base", 0, "fas fa-hospital-user"));
+        BaseTiles.Add(new FhirTile("Practitioner",      "Base", 0, "fas fa-user-md"));
+        BaseTiles.Add(new FhirTile("PractitionerRole",  "Base", 0, "fas fa-user-md"));
+        BaseTiles.Add(new FhirTile("Organization",      "Base", 0, "fas fa-clinic-medical"));
+        BaseTiles.Add(new FhirTile("Location",          "Base", 0, "fas fa-building"));
+        BaseTiles.Add(new FhirTile("HealthcareService", "Base", 0, "fas fa-briefcase-medical"));
 
 
         // Financial
-        FinancialTiles.Add(new FhirTile("Claim",            "Financial", 111, "fas fa-file-invoice-dollar"));
-        FinancialTiles.Add(new FhirTile("ClaimResponse",    "Financial", 111, "fas fa-receipt"));
-        FinancialTiles.Add(new FhirTile("PaymentNotice",    "Financial", 111, "far fa-credit-card"));
-        FinancialTiles.Add(new FhirTile("InsurancePlan",    "Financial", 111, "far fa-credit-card")); 
-        FinancialTiles.Add(new FhirTile("Invoice",          "Financial", 111, "far fa-credit-card"));
+        FinancialTiles.Add(new FhirTile("Claim",            "Financial", 0, "fas fa-file-invoice-dollar"));
+        FinancialTiles.Add(new FhirTile("ClaimResponse",    "Financial", 0, "fas fa-receipt"));
+        FinancialTiles.Add(new FhirTile("PaymentNotice",    "Financial", 0, "far fa-credit-card"));
+        FinancialTiles.Add(new FhirTile("InsurancePlan",    "Financial", 0, "far fa-credit-card")); 
+        FinancialTiles.Add(new FhirTile("Invoice",          "Financial", 0, "far fa-credit-card"));
 
         Debug.Print($"BaseTiles         = {BaseTiles.Count}");
         Debug.Print($"PlanningTiles     = {PlanningTiles.Count}");

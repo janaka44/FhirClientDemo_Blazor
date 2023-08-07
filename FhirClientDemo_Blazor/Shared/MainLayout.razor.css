@@ -32,6 +32,15 @@ main {
         text-overflow: ellipsis;
     }
 
+.toolbar-button {
+    border-color: #c6c6c6;
+    font-size: 12px;
+    border-radius: 4px;
+    background: linear-gradient(to bottom right, #5dafff, #001339);
+    box-shadow: 2px 2px 4px 0 rgba(0,0,0,0.15);
+    color: white;
+}
+
 @media (max-width: 640.98px) {
     .top-row:not(.auth) {
         display: none;
